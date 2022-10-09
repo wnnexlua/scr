@@ -70,3 +70,5 @@ OldNameCall = hookmetamethod(game, "__namecall", function(Self, ...)
 end)
 
 RunService:BindToRenderStep("Dynamic Silent Aim", 120, GetClosestBodyPartFromCursor)
+
+--WNNEX
