@@ -1,0 +1,4 @@
+-- Totally fucks up roblox bedwars its hilarous 
+-- Not mine
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/main/NewMainScript.lua", true))()
