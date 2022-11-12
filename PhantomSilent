@@ -1,0 +1,76 @@
+-- COMPLETELY SILENT, NO FOV.
+
+
+-- services
+local players = game:GetService("Players");
+local workspace = game:GetService("Workspace");
+local inputService = game:GetService("UserInputService");
+
+-- variables
+local shared = getrenv().shared;
+local localplayer = players.LocalPlayer;
+local camera = workspace.CurrentCamera;
+
+-- modules
+local physics = shared.require("physics");
+local particle = shared.require("particle");
+local replication = shared.require("ReplicationInterface");
+
+-- functions
+local function getCharacter(entry)
+    local character = entry and entry._thirdPersonObject;
+    return character and character._character;
+end
+
+local function worldToScreen(position)
+    local screen = worldtoscreen and
+        worldtoscreen({ position })[1] or
+        camera:WorldToViewportPoint(position);
+    return Vector2.new(screen.X, screen.Y), screen.Z > 0, screen.Z;
+end
+
+local function getClosest()
+    local _priority = fov or math.huge;
+    local _position, _entry;
+
+    replication.operateOnAllEntries(function(player, entry)
+        local character = getCharacter(entry);
+        if character and player.Team ~= localplayer.Team then
+            local part = random and
+            	character[math.random() > 0.5 and "Torso" or "Torso"] or --CHANGE THESE TO HEAD, TORSO, OR WHATEVER LIMB. IDK IF ROOTPART WORKS.
+                character[targetedPart or "Torso"]; -CHANGE THIS TO ANYTHING TOO IF YOU WOULD RATHER THE SCRIPT PREFER IT.
+
+            local screen, inBounds = worldToScreen(part.Position);
+            local center = camera.ViewportSize * 0.5;
+            local priority = (screen - center).Magnitude;
+            if priority < _priority and inBounds then
+                _priority = priority;
+                _position = part.Position;
+                _entry = entry;
+            end
+        end
+    end);
+
+    return _position, _entry;
+end
+
+-- hooks
+local old;
+old = hookfunction(particle.new, function(args)
+    if args.onplayerhit and not checkcaller() then
+        local position, entry = getClosest();
+        if position and entry then
+            local bulletSpeed = args.velocity.Magnitude;
+            local travelTime = (position - args.position).Magnitude / bulletSpeed;
+
+            args.velocity = physics.trajectory(
+                args.position,
+                args.acceleration,
+                position + entry._velspring.p * travelTime,
+                bulletSpeed);
+
+            debug.setupvalue(args.ontouch, 3, args.velocity);
+        end
+    end
+    return old(args);
+end);
