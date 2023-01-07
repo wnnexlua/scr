@@ -1,7 +1,0 @@
-# SCR - By Wnnex #
-
-# SYNAPSE EXECUTORS ONLY #
-
- # One or two of these might be obfuscated so just press Ctrl+A and then Ctrl+C to get it all #
- 
- # Most of these arent mine, some are #
